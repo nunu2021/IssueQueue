@@ -20,6 +20,8 @@ class IQ {
 
 private:
     iq_entry entries[NUM_ENTRIES];
+    long long int IQ_occupancy; // the occupancy of the IQ
+
 
 public:
     IQ();

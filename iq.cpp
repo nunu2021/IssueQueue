@@ -5,16 +5,26 @@ using namespace std;
 
 IQ::IQ() {
     // Currently iterative, but pretend it's parallel
+    IQ_occupancy = 0;
+
     for (int i = 0; i < NUM_ENTRIES; i++) {
         entries[i].valid = false;
     }
 }
 
 bool IQ::isfull(){
+    if (IQ_occupancy == 64) {
+        return true;
+    }
     return false;
 }
 
 bool IQ::insert(){
+    if (IQ_occupancy < 64) {
+        IQ_occupancy++;
+    // TODO: insert the instruction into the IQ
+        return true;
+    }
     return false;
 }
 
@@ -43,6 +53,8 @@ int IQ::issue(){
             }
         }
     }
+
+    IQ_occupancy -= count;
     return count;
 }
 
@@ -51,5 +63,6 @@ void IQ::flush(){
     for (int i = 0; i < NUM_ENTRIES; i++) {
         entries[i].valid = false;
     }
+    IQ_occupancy = 0;
 }
 
