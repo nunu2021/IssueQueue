@@ -17,24 +17,25 @@ class IQ {
         bool rdy1;
         bool rdy2;
     } iq_entry;
-private:
-    iq_entry entries[64];
-public:
-    IQ();
-    /**
-     * Checks whether the queue is full
-     * 
-     * returns true if no free entries exist in the IQ
-     */
-    bool isfull();
 
-    bool insert();
+    private:
+        iq_entry entries[64];
+    public:
+        IQ();
+        /**
+         * Checks whether the queue is full
+         * 
+         * returns true if no free entries exist in the IQ
+         */
+        bool isfull();
 
-    void wakeup();
+        bool insert();
 
-    int issue();
+        void wakeup();
 
-    void flush();
+        int issue();
+
+        void flush();
 
 };
 
