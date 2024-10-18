@@ -5,10 +5,10 @@
 #include <string>
 #include <cstdint>
 
-#define ISSUE_WIDTH = 4;
+#define ISSUE_WIDTH 4
+#define NUM_ENTRIES 64
 
 class IQ {
-
     typedef struct iq_entry {
         bool valid;
         bool rob_index[7];
@@ -17,10 +17,13 @@ class IQ {
         bool rdy1;
         bool rdy2;
     } iq_entry;
+
 private:
-    iq_entry entries[64];
+    iq_entry entries[NUM_ENTRIES];
+
 public:
     IQ();
+
     /**
      * Checks whether the queue is full
      * 
@@ -42,10 +45,10 @@ public:
      * Wakes up entries when a physical register value has been produced
      * 
      * Parameters:
-     * 
+     *  - produced_reg: address of register whose value has been produced
      * 
      */
-    void wakeup();
+    void wakeup(uint8_t produced_reg);
 
     /**
      * Selects up to 4 entries for execution and issues them
