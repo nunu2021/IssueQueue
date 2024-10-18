@@ -5,7 +5,7 @@
 #include <string>
 #include <cstdint>
 
-
+#define ISSUE_WIDTH = 4;
 
 class IQ {
 
@@ -17,25 +17,53 @@ class IQ {
         bool rdy1;
         bool rdy2;
     } iq_entry;
+private:
+    iq_entry entries[64];
+    long long int IQ_occupancy; // the occupancy of the IQ
 
-    private:
-        iq_entry entries[64];
-    public:
-        IQ();
-        /**
-         * Checks whether the queue is full
-         * 
-         * returns true if no free entries exist in the IQ
-         */
-        bool isfull();
 
-        bool insert();
+public:
+    IQ();
+    /**
+     * Checks whether the queue is full
+     * 
+     * Return: true if no free entries exist in the IQ
+     */
+    bool isfull();
 
-        void wakeup();
+    /**
+     * Adds an element to the IQ
+     * 
+     * Parameters:
+     * 
+     * 
+     * Return: false if insertion was unsuccessful
+     */
+    bool insert();
 
-        int issue();
+    /**
+     * Wakes up entries when a physical register value has been produced
+     * 
+     * Parameters:
+     * 
+     * 
+     */
+    void wakeup();
 
-        void flush();
+    /**
+     * Selects up to 4 entries for execution and issues them
+     * 
+     * Parameters:
+     * 
+     * 
+     * Return: number of instructions successfully selected
+     */
+    int issue();
+
+    /**
+     * Flushes all pending instructions in the IQ
+     */
+    void flush();
 
 };
 
