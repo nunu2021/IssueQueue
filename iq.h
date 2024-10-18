@@ -1,5 +1,7 @@
 #include <cstdint>
 
+#define ISSUE_WIDTH = 4;
+
 typedef struct iq_entry {
     bool valid;
     bool rob_index[7];
@@ -20,15 +22,41 @@ public:
     /**
      * Checks whether the queue is full
      * 
-     * returns true if no free entries exist in the IQ
+     * Return: true if no free entries exist in the IQ
      */
     bool isfull();
 
+    /**
+     * Adds an element to the IQ
+     * 
+     * Parameters:
+     * 
+     * 
+     * Return: false if insertion was unsuccessful
+     */
     bool insert();
 
+    /**
+     * Wakes up entries when a physical register value has been produced
+     * 
+     * Parameters:
+     * 
+     * 
+     */
     void wakeup();
 
+    /**
+     * Selects up to 4 entries for execution and issues them
+     * 
+     * Parameters:
+     * 
+     * 
+     * Return: number of instructions successfully selected
+     */
     int issue();
 
+    /**
+     * Flushes all pending instructions in the IQ
+     */
     void flush();
 };
