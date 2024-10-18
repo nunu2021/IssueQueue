@@ -1,24 +1,26 @@
+#ifndef IQ_H // include guard
+#define IQ_H
+
+#include <iostream>
+#include <string>
 #include <cstdint>
 
 #define ISSUE_WIDTH = 4;
 
-typedef struct iq_entry {
-    bool valid;
-    bool rob_index[7];
-    uint8_t src1;
-    uint8_t src2;
-    bool rdy1;
-    bool rdy2;
-} iq_entry;
+class IQ {
 
-class iq {
+    typedef struct iq_entry {
+        bool valid;
+        bool rob_index[7];
+        uint8_t src1;
+        uint8_t src2;
+        bool rdy1;
+        bool rdy2;
+    } iq_entry;
 private:
     iq_entry entries[64];
-
 public:
-    /* Constructor: initializes new queue */
-    iq();
-
+    IQ();
     /**
      * Checks whether the queue is full
      * 
@@ -59,4 +61,7 @@ public:
      * Flushes all pending instructions in the IQ
      */
     void flush();
+
 };
+
+#endif /* IQ_H */

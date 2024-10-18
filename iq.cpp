@@ -1,25 +1,29 @@
 #include "iq.h"
+#include <iostream>
+#include <cstdint>
+using namespace std;
 
-iq::iq() {
+IQ::IQ() {
+    std::cout << "IQ constructor" << std::endl;
+}
+
+bool IQ::isfull(){
+    return false;
+}
+
+bool IQ::insert(){
+    return false;
+}
+
+void IQ::wakeup(){
 
 }
 
-bool iq::isfull() {
+int IQ::issue(){
+    return 0;
+}
+
+void IQ::flush(){
 
 }
 
-bool iq::insert() {
-
-}
-
-void iq::wakeup() {
-
-}
-
-int iq::issue() {
-
-}
-
-void iq::flush() {
-    
-}
