@@ -73,8 +73,12 @@ public:
     /**
      * Selects up to 4 entries for execution and issues them
      * 
-     * Parameters:
-     * 
+     * Attempts to extend the design from the paper to issue 4 at a time
+     * using a modification of the arbiter, which passes a count of free
+     * and ready instructions instead of if any request is ready, as well
+     * as up to 4 indices of entries which can be issued. At every level,
+     * the arbiter attempts to pick the first four ready indices of the 16
+     * it receives from its children to pass towards the root.
      * 
      * Return: number of instructions successfully selected
      */
