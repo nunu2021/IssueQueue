@@ -24,6 +24,7 @@ class IQ {
         unsigned int ready;
         int start_index; // inclusive
         int end_index; // exclusive
+        int ready_indices[ISSUE_WIDTH];
         struct arbiter* children[ARBITER_WIDTH];
     } arbiter;
 
@@ -33,6 +34,7 @@ private:
     
     arbiter* initializeArbiters(int start, int end);
     void clearArbiters(arbiter* head);
+    void updateArbiters(arbiter* head);
 
 public:
     IQ();
