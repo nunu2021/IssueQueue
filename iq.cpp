@@ -128,18 +128,21 @@ void IQ::clearArbiters(IQ::arbiter* head) {
 void IQ::updateArbiters(IQ::arbiter* head) {
     int free_count = 0;
     int ready_count = 0;
-    // Hardware analogue: adder unit
+    // Hardware analogue: adder units
     for (int i = 0; i < ARBITER_WIDTH; i++) {
-        // Hardware analogue: pass signal from leaves to parent
         if (head->children[i] != nullptr) {
+            // Hardware analogue: pass signal from leaves to parent
             updateArbiters(head->children[i]);
             free_count += head->children[i]->free;
             ready_count += head->children[i]->ready;
+
         } else {
             if (!entries[head->start_index + i].valid) {
                 free_count++;
             } else if (entries[head->start_index].rdy1
                     && entries[head->start_index].rdy2) {
+                // Hardware analogue: mux
+                head->ready_indices[ready_count] = head->start_index + i;
                 ready_count++;
             }
         }
@@ -147,4 +150,29 @@ void IQ::updateArbiters(IQ::arbiter* head) {
 
     head->free = free_count;
     head->ready = ready_count;
+
+    // Hardware analogue: specialized circuit for leaves
+    if (head->children[0] == nullptr) {
+        return;
+    }
+
+    int to_issue = free_count;
+    if (free_count > ISSUE_WIDTH) {
+        to_issue = ISSUE_WIDTH;
+    }
+    // Hardware analogue: complicated circuit copied multiple times
+    for (int i = 0; i < to_issue; i++) {
+        int count = 0;
+        for (int j = 0; j < ARBITER_WIDTH; j++) {
+            if (head->children[j]->ready + count > i) {
+                head->ready_indices[i] = head->children[j]
+                        ->ready_indices[i - count];
+                break;
+            } else {
+                count += head->children[j]->ready;
+            }
+        }
+    }
+
+    
 }
