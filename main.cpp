@@ -1,5 +1,5 @@
-#include <iostream>
-#include <string>
+// #include <iostream>
+// #include <string>
 #include <cstdint>
 #include "iq.h"
 
@@ -9,7 +9,7 @@ int main() {
     // Create an IQ object
     IQ myIQ;
 
-    cout << "item created successfully" << endl;
+    // cout << "item created successfully" << endl;
 
     // Example usage of the IQ class methods
     // myIQ.setIQ(100);

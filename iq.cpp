@@ -1,5 +1,4 @@
 #include "iq.h"
-#include <iostream>
 #include <cstdint>
 using namespace std;
 
@@ -112,6 +111,7 @@ IQ::arbiter* IQ::initializeArbiters(int start, int end) {
             arbiter->children[i] = nullptr;
         }
     }
+    return arbiter;
 }
 
 void IQ::clearArbiters(IQ::arbiter* head) {

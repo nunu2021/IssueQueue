@@ -1,8 +1,6 @@
 #ifndef IQ_H // include guard
 #define IQ_H
 
-#include <iostream>
-#include <string>
 #include <cstdint>
 
 #define ISSUE_WIDTH 4
