@@ -63,26 +63,37 @@ void IQ::wakeup(uint8_t produced_reg){
     for (int i = 0; i < NUM_ENTRIES; i++) {
         if (entries[i].src1 == produced_reg) {
             entries[i].rdy1 = true;
+            readyRingBuffer[readyRingBufferTail] = i;
+            readyRingBufferTail = (readyRingBufferTail + 1) % NUM_ENTRIES;
         }
         if (entries[i].src2 == produced_reg) {
             entries[i].rdy2 = true;
+            readyRingBuffer[readyRingBufferTail] = i;
+            readyRingBufferTail = (readyRingBufferTail + 1) % NUM_ENTRIES;
         }
     }
+
+
 
     updateArbiters(arbitration_head);
 }
 
 int IQ::issue(){
     // Software implementation, doesn't really work in hardware
-    iq_entry to_issue[ISSUE_WIDTH];
-    int count = arbitration_head->ready;
-    for (int i = 0; i < arbitration_head->ready; i++) {
-        to_issue[i] = entries[arbitration_head->ready_indices[i]];
-        entries[arbitration_head->ready_indices[i]].valid = false;
+    // iq_entry to_issue[ISSUE_WIDTH];
+    // int count = arbitration_head->ready;
+    // for (int i = 0; i < arbitration_head->ready; i++) {
+    //     to_issue[i] = entries[arbitration_head->ready_indices[i]];
+    //     entries[arbitration_head->ready_indices[i]].valid = false;
+    // }
+
+    // updateArbiters(arbitration_head);
+
+    int count = min(readyRingBufferHead - readyRingBufferTail, 4);
+    for (int i = 0; i < count; i++) {
+        entries[readyRingBuffer[(readyRingBufferHead + i) % NUM_ENTRIES]].valid = false;
     }
-
-    updateArbiters(arbitration_head);
-
+    readyRingBufferHead = (readyRingBufferHead + count) % NUM_ENTRIES;
     return count;
 }
 
@@ -91,6 +102,8 @@ void IQ::flush(){
     for (int i = 0; i < NUM_ENTRIES; i++) {
         entries[i].valid = false;
     }
+    readyRingBufferHead = 0;
+    readyRingBufferTail = 0;
 
     clearArbiters(arbitration_head);
 }

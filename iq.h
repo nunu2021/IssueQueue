@@ -31,7 +31,11 @@ class IQ {
 private:
     iq_entry entries[NUM_ENTRIES];
     arbiter* arbitration_head;
-    
+
+    int readyRingBuffer[NUM_ENTRIES];
+    int readyRingBufferHead;
+    int readyRingBufferTail;
+
     arbiter* initializeArbiters(int start, int end);
     void clearArbiters(arbiter* head);
     void updateArbiters(arbiter* head);
