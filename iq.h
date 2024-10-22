@@ -30,11 +30,9 @@ class IQ {
 private:
     iq_entry entries[NUM_ENTRIES];
     arbiter* arbitration_head;
-    long long int IQ_occupancy; // the occupancy of the IQ
-    int arbiter_depth;
     
     arbiter* initializeArbiters(int start, int end);
-    int calculateDepth(arbiter* head);
+    void clearArbiters(arbiter* head);
 
 public:
     IQ();

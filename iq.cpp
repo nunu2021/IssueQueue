@@ -9,11 +9,10 @@ IQ::IQ() {
     }
 
     arbitration_head = initializeArbiters(0, NUM_ENTRIES);
-    arbiter_depth = calculateDepth(arbitration_head);
 }
 
 bool IQ::isfull(){
-    if (IQ_occupancy == 64) {
+    if (arbitration_head->free > 0) {
         return true;
     }
     return false;
@@ -21,11 +20,11 @@ bool IQ::isfull(){
 
 bool IQ::insert(bool in_rob_idx[7], uint8_t in_src1, uint8_t in_src2,
             bool in_rdy1, bool in_rdy2){
-    if (IQ_occupancy < 64) {
-        IQ_occupancy++;
-        // TODO: insert the instruction into the IQ
+    if (arbitration_head->free > 0) {
         IQ::arbiter* current = arbitration_head;
-        for (int i = 0; i < arbiter_depth - 1; i++) {
+        // Hardware analogue: pass signal from leaves to parent
+        while(current->children[0] != nullptr) {
+            // Hardware analogue: priority encoders
             for (int j = 0; j < ARBITER_WIDTH; j++) {
                 if (current->children[j]->free > 0) {
                     current->free--;
@@ -36,9 +35,11 @@ bool IQ::insert(bool in_rob_idx[7], uint8_t in_src1, uint8_t in_src2,
         }
 
         int start = current->start_index;
+        // Hardware analogue: priority encoders
         for (int i = 0; i < ARBITER_WIDTH; i++) {
             if (!entries[start + i].valid) {
                 entries[start + i].valid = true;
+                // Hardware analogue: parallel copy
                 for (int j = 0; j < 7; j++) {
                     entries[start + i].rob_index[j] = in_rob_idx[j];
                 }
@@ -52,11 +53,13 @@ bool IQ::insert(bool in_rob_idx[7], uint8_t in_src1, uint8_t in_src2,
             }
         }
         return true;
+    } else {
+        return false;
     }
-    return false;
 }
 
 void IQ::wakeup(uint8_t produced_reg){
+    // Hardware analogue: parallel checks
     for (int i = 0; i < NUM_ENTRIES; i++) {
         if (entries[i].src1 == produced_reg) {
             entries[i].rdy1 = true;
@@ -65,31 +68,31 @@ void IQ::wakeup(uint8_t produced_reg){
             entries[i].rdy2 = true;
         }
     }
+
+    updateArbiters(arbitration_head);
 }
 
 int IQ::issue(){
     // Software implementation, doesn't really work in hardware
     iq_entry to_issue[ISSUE_WIDTH];
-    int count = 0;
-    for (int i = 0; i < NUM_ENTRIES; i++) {
-        if (entries[i].valid && entries[i].rdy1 && entries[i].rdy2) {
-            to_issue[count] = entries[i];
-            count++;
-            if (count >= ISSUE_WIDTH) {
-                break;
-            }
-        }
+    int count = arbitration_head->ready;
+    for (int i = 0; i < arbitration_head->ready; i++) {
+        to_issue[i] = entries[arbitration_head->ready_indices[i]];
+        entries[arbitration_head->ready_indices[i]].valid = false;
     }
 
-    IQ_occupancy -= count;
+    updateArbiters(arbitration_head);
+
     return count;
 }
 
 void IQ::flush(){
+    // Hardware analogue: parallel copy
     for (int i = 0; i < NUM_ENTRIES; i++) {
         entries[i].valid = false;
     }
-    IQ_occupancy = 0;
+
+    clearArbiters(arbitration_head);
 }
 
 IQ::arbiter* IQ::initializeArbiters(int start, int end) {
@@ -111,14 +114,37 @@ IQ::arbiter* IQ::initializeArbiters(int start, int end) {
     }
 }
 
-int IQ::calculateDepth(IQ::arbiter* head) {
-    if (head == nullptr) {
-        return 0;
+void IQ::clearArbiters(IQ::arbiter* head) {
+    head->free = head->end_index - head->start_index;
+    head->ready = 0;
+    // Hardware analogue: pass signal from root to children
+    for (int i = 0; i < ARBITER_WIDTH; i++) {
+        if (head->children[i] != nullptr) {
+            clearArbiters(head->children[i]);
+        }
     }
-    int depth = 1;
-    while (head->children[0] != nullptr) {
-        head = head->children[0];
-        depth++;
+}
+
+void IQ::updateArbiters(IQ::arbiter* head) {
+    int free_count = 0;
+    int ready_count = 0;
+    // Hardware analogue: adder unit
+    for (int i = 0; i < ARBITER_WIDTH; i++) {
+        // Hardware analogue: pass signal from leaves to parent
+        if (head->children[i] != nullptr) {
+            updateArbiters(head->children[i]);
+            free_count += head->children[i]->free;
+            ready_count += head->children[i]->ready;
+        } else {
+            if (!entries[head->start_index + i].valid) {
+                free_count++;
+            } else if (entries[head->start_index].rdy1
+                    && entries[head->start_index].rdy2) {
+                ready_count++;
+            }
+        }
     }
-    return depth;
+
+    head->free = free_count;
+    head->ready = ready_count;
 }
