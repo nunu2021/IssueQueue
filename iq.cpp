@@ -161,6 +161,7 @@ void IQ::updateArbiters(IQ::arbiter* head) {
         to_issue = ISSUE_WIDTH;
     }
     // Hardware analogue: complicated circuit copied multiple times
+    // Goal: compress up to 16 array entries into up to 4 entries
     for (int i = 0; i < to_issue; i++) {
         int count = 0;
         for (int j = 0; j < ARBITER_WIDTH; j++) {
